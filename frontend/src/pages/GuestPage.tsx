@@ -1,10 +1,23 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   Container, Title, Table, Button, Group, Text,
-  TextInput, Modal, Stack, Card, Loader, Alert,
+  TextInput, Modal, Stack, Card, Loader, Alert, SimpleGrid,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { api, type EventType, type Slot, type Booking } from '../api'
+
+function formatDate(dateStr: string): string {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+}
+
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+}
+
+function getDateKey(iso: string): string {
+  return iso.slice(0, 10)
+}
 
 function GuestPage() {
   const [eventTypes, setEventTypes] = useState<EventType[]>([])
@@ -13,11 +26,30 @@ function GuestPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState({ et: false, slots: false, book: false })
   const [error, setError] = useState<string | null>(null)
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
   const [opened, { open, close }] = useDisclosure(false)
   const [form, setForm] = useState({ eventTypeId: '', guestName: '', guestEmail: '', startTime: '' })
 
   useEffect(() => { loadEventTypes() }, [])
+
+  const slotsByDate = useMemo(() => {
+    const map = new Map<string, Slot[]>()
+    for (const s of slots) {
+      const key = getDateKey(s.startTime)
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(s)
+    }
+    return map
+  }, [slots])
+
+  const dateKeys = useMemo(() => Array.from(slotsByDate.keys()).sort(), [slotsByDate])
+
+  useEffect(() => {
+    if (dateKeys.length > 0 && !selectedDate) {
+      setSelectedDate(dateKeys[0])
+    }
+  }, [dateKeys, selectedDate])
 
   async function loadEventTypes() {
     setLoading(p => ({ ...p, et: true })); setError(null)
@@ -27,7 +59,8 @@ function GuestPage() {
   }
 
   async function loadSlots(eventTypeId: string) {
-    setSelectedEt(eventTypeId); setLoading(p => ({ ...p, slots: true })); setError(null)
+    setSelectedEt(eventTypeId); setSelectedDate(null)
+    setLoading(p => ({ ...p, slots: true })); setError(null)
     try { setSlots(await api.guestListSlots(eventTypeId)) }
     catch (e: any) { setError(e.message) }
     finally { setLoading(p => ({ ...p, slots: false })) }
@@ -41,6 +74,8 @@ function GuestPage() {
     } catch (e: any) { setError(e.message) }
     finally { setLoading(p => ({ ...p, book: false })) }
   }
+
+  const currentSlots = selectedDate ? slotsByDate.get(selectedDate) ?? [] : []
 
   return (
     <Container size="lg" py="xl">
@@ -84,30 +119,46 @@ function GuestPage() {
       {selectedEt && (
         <Card withBorder mb="md">
           <Title order={4} mb="sm">Available Slots</Title>
-          {loading.slots ? <Loader /> : (
-            <Table>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Start</Table.Th>
-                  <Table.Th>End</Table.Th>
-                  <Table.Th w={80}></Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {slots.map((s, i) => (
-                  <Table.Tr key={i}>
-                    <Table.Td>{s.startTime}</Table.Td>
-                    <Table.Td>{s.endTime}</Table.Td>
-                    <Table.Td>
-                      <Button size="xs" variant="light" onClick={() => {
-                        setForm({ eventTypeId: s.eventTypeId, guestName: '', guestEmail: '', startTime: s.startTime })
-                        open()
-                      }}>Book</Button>
-                    </Table.Td>
-                  </Table.Tr>
+          {loading.slots ? <Loader /> : dateKeys.length === 0 ? (
+            <Text c="dimmed" size="sm">No available slots</Text>
+          ) : (
+            <>
+              <Group gap="xs" mb="md">
+                {dateKeys.map(key => (
+                  <Button
+                    key={key}
+                    size="sm"
+                    variant={selectedDate === key ? 'filled' : 'outline'}
+                    onClick={() => setSelectedDate(key)}
+                  >
+                    {formatDate(key)}
+                  </Button>
                 ))}
-              </Table.Tbody>
-            </Table>
+              </Group>
+
+              {currentSlots.length > 0 && (
+                <>
+                  <Text size="sm" c="dimmed" mb="xs">
+                    {formatDate(selectedDate!)} — {currentSlots.length} slot{currentSlots.length > 1 ? 's' : ''}
+                  </Text>
+                  <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }}>
+                    {currentSlots.map((s, i) => (
+                      <Button
+                        key={i}
+                        variant="light"
+                        size="md"
+                        onClick={() => {
+                          setForm({ eventTypeId: s.eventTypeId, guestName: '', guestEmail: '', startTime: s.startTime })
+                          open()
+                        }}
+                      >
+                        {formatTime(s.startTime)} — {formatTime(s.endTime)}
+                      </Button>
+                    ))}
+                  </SimpleGrid>
+                </>
+              )}
+            </>
           )}
         </Card>
       )}
