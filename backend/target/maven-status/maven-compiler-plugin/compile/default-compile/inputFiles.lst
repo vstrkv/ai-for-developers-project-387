@@ -1,8 +1,0 @@
-C:\Users\vstrk\IdeaProjects\ai-for-developers-project-386\backend\src\main\java\calendarbooking\CalendarBookingApplication.java
-C:\Users\vstrk\IdeaProjects\ai-for-developers-project-386\backend\src\main\java\calendarbooking\controller\GuestController.java
-C:\Users\vstrk\IdeaProjects\ai-for-developers-project-386\backend\src\main\java\calendarbooking\controller\OwnerController.java
-C:\Users\vstrk\IdeaProjects\ai-for-developers-project-386\backend\src\main\java\calendarbooking\model\Booking.java
-C:\Users\vstrk\IdeaProjects\ai-for-developers-project-386\backend\src\main\java\calendarbooking\model\CreateBookingRequest.java
-C:\Users\vstrk\IdeaProjects\ai-for-developers-project-386\backend\src\main\java\calendarbooking\model\EventType.java
-C:\Users\vstrk\IdeaProjects\ai-for-developers-project-386\backend\src\main\java\calendarbooking\model\Slot.java
-C:\Users\vstrk\IdeaProjects\ai-for-developers-project-386\backend\src\main\java\calendarbooking\service\CalendarService.java

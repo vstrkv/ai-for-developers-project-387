@@ -1,8 +1,0 @@
-calendarbooking\controller\GuestController.class
-calendarbooking\controller\OwnerController.class
-calendarbooking\model\EventType.class
-calendarbooking\CalendarBookingApplication.class
-calendarbooking\model\Booking.class
-calendarbooking\service\CalendarService.class
-calendarbooking\model\Slot.class
-calendarbooking\model\CreateBookingRequest.class
