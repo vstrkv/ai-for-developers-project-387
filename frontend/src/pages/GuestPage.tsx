@@ -45,24 +45,22 @@ function GuestPage() {
 
   const dateKeys = useMemo(() => Array.from(slotsByDate.keys()).sort(), [slotsByDate])
 
-  useEffect(() => {
-    if (dateKeys.length > 0 && !selectedDate) {
-      setSelectedDate(dateKeys[0])
-    }
-  }, [dateKeys, selectedDate])
-
   async function loadEventTypes() {
     setLoading(p => ({ ...p, et: true })); setError(null)
     try { setEventTypes(await api.guestListEventTypes()) }
-    catch (e: any) { setError(e.message) }
+    catch (e: unknown) { setError(e instanceof Error ? e.message : String(e)) }
     finally { setLoading(p => ({ ...p, et: false })) }
   }
 
   async function loadSlots(eventTypeId: string) {
-    setSelectedEt(eventTypeId); setSelectedDate(null)
+    setSelectedEt(eventTypeId)
     setLoading(p => ({ ...p, slots: true })); setError(null)
-    try { setSlots(await api.guestListSlots(eventTypeId)) }
-    catch (e: any) { setError(e.message) }
+    try {
+      const data = await api.guestListSlots(eventTypeId)
+      setSlots(data)
+      const keys = [...new Set(data.map(s => getDateKey(s.startTime)))].sort()
+      setSelectedDate(keys[0] ?? null)
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : String(e)) }
     finally { setLoading(p => ({ ...p, slots: false })) }
   }
 
@@ -74,7 +72,7 @@ function GuestPage() {
       setForm({ eventTypeId: form.eventTypeId, guestName: '', guestEmail: '', startTime: '' })
       const updatedSlots = await api.guestListSlots(form.eventTypeId)
       setSlots(updatedSlots)
-    } catch (e: any) { setError(e.message) }
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : String(e)) }
     finally { setLoading(p => ({ ...p, book: false })) }
   }
 

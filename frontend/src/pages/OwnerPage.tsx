@@ -8,15 +8,15 @@ import { useDisclosure } from '@mantine/hooks'
 import { api, type EventType, type Booking } from '../api'
 
 function BookingCalendar({ bookings, eventTypes }: { bookings: Booking[]; eventTypes: EventType[] }) {
-  const now = new Date()
-  const utcToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-
-  const days = useMemo(() =>
-    Array.from({ length: 7 }, (_, i) => {
+  const days = useMemo(() => {
+    const now = new Date()
+    const utcToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+    return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(utcToday)
       d.setUTCDate(d.getUTCDate() + i)
       return d
-    }), [])
+    })
+  }, [])
 
   const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -166,14 +166,14 @@ function OwnerPage() {
   async function loadEventTypes() {
     setLoading(p => ({ ...p, et: true })); setError(null)
     try { setEventTypes(await api.ownerListEventTypes()) }
-    catch (e: any) { setError(e.message) }
+    catch (e: unknown) { setError(e instanceof Error ? e.message : String(e)) }
     finally { setLoading(p => ({ ...p, et: false })) }
   }
 
   async function loadBookings() {
     setLoading(p => ({ ...p, bookings: true })); setError(null)
     try { setBookings(await api.ownerListBookings()) }
-    catch (e: any) { setError(e.message) }
+    catch (e: unknown) { setError(e instanceof Error ? e.message : String(e)) }
     finally { setLoading(p => ({ ...p, bookings: false })) }
   }
 
@@ -182,7 +182,7 @@ function OwnerPage() {
     try {
       await api.ownerCreateEventType(form)
       setForm({ title: '', description: '', durationMinutes: 30 }); close(); loadEventTypes()
-    } catch (e: any) { setError(e.message) }
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : String(e)) }
   }
 
   async function updateEventType() {
@@ -190,13 +190,13 @@ function OwnerPage() {
     try {
       await api.ownerUpdateEventType(editForm.id, editForm)
       closeEdit(); loadEventTypes()
-    } catch (e: any) { setError(e.message) }
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : String(e)) }
   }
 
   async function deleteEventType(id: string) {
     setError(null)
     try { await api.ownerDeleteEventType(id); loadEventTypes() }
-    catch (e: any) { setError(e.message) }
+    catch (e: unknown) { setError(e instanceof Error ? e.message : String(e)) }
   }
 
   return (
