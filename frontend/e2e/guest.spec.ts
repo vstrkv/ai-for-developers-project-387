@@ -18,7 +18,7 @@ test.describe('Guest flows', () => {
     await expect(rows).toHaveCount(0)
   })
 
-  test('2: view event types and available slots', async ({ page }) => {
+  test('2: view event types and timeline', async ({ page }) => {
     await page.request.post('/api/owner/event-types', {
       data: { title: 'Consultation', description: '30 min call', durationMinutes: 30 },
     })
@@ -26,24 +26,26 @@ test.describe('Guest flows', () => {
     await page.goto('/guest')
     await expect(page.getByRole('cell', { name: 'Consultation' })).toBeVisible()
     await page.getByRole('button', { name: 'View' }).click()
-    await expect(page.getByRole('heading', { name: 'Available Slots' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Consultation' })).toBeVisible()
 
     await expect(page.locator('.mantine-Loader-root')).toHaveCount(0, { timeout: 10000 })
-    const timeSlots = page.locator('button:has-text(":")')
-    await expect(timeSlots.first()).toBeVisible()
+    const timeline = page.locator('[data-testid="timeline-column"]')
+    await expect(timeline.first()).toBeVisible()
   })
 
-  test('3: book a slot', async ({ page }) => {
+  test('3: book a slot via timeline', async ({ page }) => {
     await page.request.post('/api/owner/event-types', {
       data: { title: 'Workshop', description: '60 min session', durationMinutes: 60 },
     })
 
     await page.goto('/guest')
     await page.getByRole('button', { name: 'View' }).click()
-    await expect(page.getByRole('heading', { name: 'Available Slots' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Workshop' })).toBeVisible()
     await expect(page.locator('.mantine-Loader-root')).toHaveCount(0, { timeout: 10000 })
 
-    await page.locator('button:has-text(":")').first().click()
+    const timeline = page.locator('[data-testid="timeline-column"]')
+    await timeline.first().click({ position: { x: 30, y: 80 } })
+
     await expect(page.getByRole('dialog', { name: 'New Booking' })).toBeVisible()
     await page.getByLabel('Name').fill('Alice Smith')
     await page.getByLabel('Email').fill('alice@test.com')
@@ -53,19 +55,21 @@ test.describe('Guest flows', () => {
     await expect(page.getByRole('cell', { name: 'Alice Smith' })).toBeVisible()
   })
 
-  test('4: booked slot is removed from available list', async ({ page }) => {
+  test('4: booked slot shows as busy in timeline', async ({ page }) => {
     await page.request.post('/api/owner/event-types', {
       data: { title: 'Briefing', description: '60 min', durationMinutes: 60 },
     })
 
     await page.goto('/guest')
     await page.getByRole('button', { name: 'View' }).click()
-    await expect(page.getByRole('heading', { name: 'Available Slots' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Briefing' })).toBeVisible()
     await expect(page.locator('.mantine-Loader-root')).toHaveCount(0, { timeout: 10000 })
 
-    const slotText = await page.locator('button:has-text(":")').first().textContent()
+    await expect(page.locator('text=Busy')).toHaveCount(0)
 
-    await page.locator('button:has-text(":")').first().click()
+    const timeline = page.locator('[data-testid="timeline-column"]')
+    await timeline.first().click({ position: { x: 30, y: 80 } })
+
     await page.getByLabel('Name').fill('Bob Jones')
     await page.getByLabel('Email').fill('bob@test.com')
     await page.getByRole('button', { name: 'Confirm' }).click()
@@ -73,6 +77,6 @@ test.describe('Guest flows', () => {
     await expect(page.getByRole('cell', { name: 'Bob Jones' })).toBeVisible()
 
     await expect(page.locator('.mantine-Loader-root')).toHaveCount(0, { timeout: 10000 })
-    await expect(page.getByRole('button', { name: slotText!.trim() })).toHaveCount(0)
+    await expect(page.locator('text=Busy')).toBeVisible()
   })
 })

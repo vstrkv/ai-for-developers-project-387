@@ -31,21 +31,18 @@ test.describe('Navigation and edge cases', () => {
     await expect(page.getByText('Choose a section to get started')).toBeVisible()
   })
 
-  test('11: slots respect event type duration (60 min)', async ({ page }) => {
+  test('11: timeline shows for event type', async ({ page }) => {
     await page.request.post('/api/owner/event-types', {
       data: { title: 'Long Session', description: '60 min each', durationMinutes: 60 },
     })
 
     await page.goto('/guest')
     await page.getByRole('button', { name: 'View' }).click()
-    await expect(page.getByRole('heading', { name: 'Available Slots' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Long Session' })).toBeVisible()
 
     await expect(page.locator('.mantine-Loader-root')).toHaveCount(0, { timeout: 10000 })
 
-    const timeSlots = page.locator('button:has-text(":")')
-    await expect(timeSlots.first()).toBeVisible()
-    const slotText = await timeSlots.first().textContent()
-    // Slot text format: "HH:MM AM — HH:MM AM" — verify 60-min duration
-    expect(slotText).toMatch(/\d+:\d+ [AP]M — \d+:\d+ [AP]M/)
+    const timeline = page.locator('[data-testid="timeline-column"]')
+    await expect(timeline.first()).toBeVisible()
   })
 })

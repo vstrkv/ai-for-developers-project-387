@@ -67,6 +67,8 @@ export const api = {
     get<Slot[]>(`/guest/event-types/${eventTypeId}/slots`),
   guestCreateBooking: (body: CreateBookingRequest) =>
     post<Booking>('/guest/bookings', body),
+  guestListBookings: (eventTypeId: string) =>
+    get<Booking[]>(`/guest/event-types/${eventTypeId}/bookings`),
 
   ownerListEventTypes: () => get<EventType[]>('/owner/event-types'),
   ownerCreateEventType: (body: Omit<EventType, 'id'>) =>
