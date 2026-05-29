@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class CalendarService {
@@ -90,7 +91,7 @@ public class CalendarService {
     public List<Booking> getBookingsByEventType(String eventTypeId) {
         return bookings.values().stream()
             .filter(b -> b.getEventTypeId().equals(eventTypeId))
-            .collect(java.util.stream.Collectors.toList());
+            .collect(Collectors.toList());
     }
 
     public Booking createBooking(CreateBookingRequest request) {
