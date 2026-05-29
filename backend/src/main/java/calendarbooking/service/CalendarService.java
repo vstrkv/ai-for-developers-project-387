@@ -87,6 +87,12 @@ public class CalendarService {
         return new ArrayList<>(bookings.values());
     }
 
+    public List<Booking> getBookingsByEventType(String eventTypeId) {
+        return bookings.values().stream()
+            .filter(b -> b.getEventTypeId().equals(eventTypeId))
+            .collect(java.util.stream.Collectors.toList());
+    }
+
     public Booking createBooking(CreateBookingRequest request) {
         EventType eventType = eventTypes.get(request.getEventTypeId());
         if (eventType == null) {
