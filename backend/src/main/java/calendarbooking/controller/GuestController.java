@@ -34,6 +34,11 @@ public class GuestController {
         return service.getSlots(eventTypeId);
     }
 
+    @GetMapping("/event-types/{eventTypeId}/bookings")
+    public List<Booking> listBookings(@PathVariable String eventTypeId) {
+        return service.getBookingsByEventType(eventTypeId);
+    }
+
     @PostMapping("/bookings")
     public ResponseEntity<?> createBooking(@RequestBody CreateBookingRequest request) {
         try {
