@@ -75,6 +75,6 @@ test.describe('Guest flows', () => {
     await expect(page.getByRole('cell', { name: 'Bob Jones' })).toBeVisible()
 
     await expect(page.locator('.mantine-Loader-root')).toHaveCount(0, { timeout: 10000 })
-    await expect(page.locator('text=Busy')).toBeVisible()
+    await expect(page.locator('text=Busy').first()).toBeVisible()
   })
 })
