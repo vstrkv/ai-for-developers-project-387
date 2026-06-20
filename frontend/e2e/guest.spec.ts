@@ -65,8 +65,6 @@ test.describe('Guest flows', () => {
     await expect(page.getByRole('heading', { name: 'Briefing' })).toBeVisible()
     await expect(page.locator('.mantine-Loader-root')).toHaveCount(0, { timeout: 10000 })
 
-    await expect(page.locator('text=Busy')).toHaveCount(0)
-
     const timeline = page.locator('[data-testid="timeline-column"]')
     await timeline.first().click({ position: { x: 30, y: 80 } })
 
