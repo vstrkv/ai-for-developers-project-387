@@ -5,4 +5,7 @@ frontend/dist/
 frontend/dev.log
 *.log
 *.err
+node_modules/
+lighthouse-reports/
+lighthouse-summary.md
 

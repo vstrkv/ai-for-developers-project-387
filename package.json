@@ -1,0 +1,13 @@
+{
+  "name": "calendar-booking",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lighthouse": "node scripts/lighthouse-audit.mjs",
+    "lighthouse:report": "node scripts/lighthouse-audit.mjs --serve"
+  },
+  "devDependencies": {
+    "chrome-launcher": "^1.1.2",
+    "lighthouse": "^12.6.0"
+  }
+}
