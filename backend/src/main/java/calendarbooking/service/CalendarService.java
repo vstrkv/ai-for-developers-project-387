@@ -76,7 +76,7 @@ public class CalendarService {
                     slots.add(slot);
                 }
 
-                time = time.plusMinutes(eventType.getDurationMinutes());
+                time = time.plusMinutes(30);
             }
         }
 
