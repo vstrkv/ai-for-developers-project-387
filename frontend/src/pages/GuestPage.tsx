@@ -260,22 +260,6 @@ function GuestPage() {
             <Text c="dimmed" size="sm">No available slots</Text>
           ) : (
             <>
-              <Group gap="xs" mb="md">
-                {days.map((day, i) => {
-                  const key = day.toISOString().split('T')[0]
-                  return (
-                    <Button
-                      key={i}
-                      size="sm"
-                      variant={selectedDate === key ? 'filled' : 'outline'}
-                      onClick={() => setSelectedDate(key)}
-                    >
-                      {DAY_LABELS[day.getUTCDay()]} {day.getUTCDate()}/{day.getUTCMonth() + 1}
-                    </Button>
-                  )
-                })}
-              </Group>
-
               <div style={{ overflowX: 'auto', border: '1px solid #dee2e6', borderRadius: 8 }}>
                 <div style={{ display: 'flex', minWidth: 780 }}>
                   <div style={{ width: 60, flexShrink: 0 }}>
